@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results | StudyGenius</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <header class="animate__animated animate__fadeInDown">
+        <div class="container">
+            <h1><i class="fas fa-brain"></i> StudyGenius</h1>
+            <p>Your quiz results</p>
+        </div>
+    </header>
+
+    <main class="container animate__animated animate__fadeIn">
+        <section class="results-container">
+            <div class="results-summary animate__animated animate__zoomIn">
+                <h2>Quiz Results</h2>
+                <div class="score-display">
+                    <div class="score-circle">
+                        <svg class="progress-ring" width="120" height="120">
+                            <circle class="progress-ring__circle" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+                        </svg>
+                        <span class="score-percent">{{ (score/total*100)|round|int }}%</span>
+                    </div>
+                    <div class="score-details">
+                        <p><strong>{{ score }}</strong> out of <strong>{{ total }}</strong> correct</p>
+                        <p class="performance-text">
+                            {% if score/total >= 0.8 %}
+                            <i class="fas fa-star"></i> Excellent performance!
+                            {% elif score/total >= 0.6 %}
+                            <i class="fas fa-thumbs-up"></i> Good job!
+                            {% elif score/total >= 0.4 %}
+                            <i class="fas fa-book"></i> Keep practicing!
+                            {% else %}
+                            <i class="fas fa-redo"></i> Review needed
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-details">
+                <h3>Question Breakdown</h3>
+                {% for r in results %}
+                <div class="result-item animate__animated animate__fadeInUp" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+                    <div class="result-question">
+                        <span class="question-number">Q{{ loop.index }}.</span>
+                        {{ r.question }}
+                    </div>
+                    
+                    <div class="result-answer {% if r.is_correct %}correct{% else %}incorrect{% endif %}">
+                        <div class="answer-status">
+                            {% if r.is_correct %}
+                            <i class="fas fa-check-circle"></i> Correct
+                            {% else %}
+                            <i class="fas fa-times-circle"></i> Incorrect
+                            {% endif %}
+                        </div>
+                        
+                        <div class="answer-details">
+                            <p><strong>Your answer:</strong> {{ r.selected }}</p>
+                            <p><strong>Correct answer:</strong> {{ r.correct }} ({{ r.correct_text }})</p>
+                        </div>
+                    </div>
+                    
+                    <div class="explanation">
+                        <p><strong>Explanation:</strong> {{ r.explanation }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="results-actions">
+                <a href="/self_assess" class="btn-retake">
+                    <i class="fas fa-redo"></i> Take Another Quiz
+                </a>
+                <a href="/" class="btn-home">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="animate__animated animate__fadeInUp">
+        <div class="container">
+            <p>© 2023 StudyGenius | AI-Powered Education</p>
+        </div>
+    </footer>
+
+    <script src="static/script.js"></script>
+    <script>
+        // Animate the progress circle
+        document.addEventListener('DOMContentLoaded', function() {
+            const circle = document.querySelector('.progress-ring__circle');
+            const radius = circle.r.baseVal.value;
+            const circumference = 2 * Math.PI * radius;
+            const percent = {{ (score/total*100)|round|int }};
+            
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle.style.strokeDashoffset = circumference;
+            
+            const offset = circumference - (percent / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            circle.style.stroke = percent >= 80 ? '#2ecc71' : percent >= 50 ? '#f39c12' : '#e74c3c';
+        });
+    </script>
+</body>
+</html>

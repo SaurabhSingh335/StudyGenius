@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz | StudyGenius</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <header class="animate__animated animate__fadeInDown">
+        <div class="container">
+            <h1><i class="fas fa-brain"></i> StudyGenius</h1>
+            <p>Test your knowledge on {{ topic }}</p>
+        </div>
+    </header>
+
+    <main class="container animate__animated animate__fadeIn">
+        <section class="quiz-container">
+            <div class="quiz-header">
+                <h2><i class="fas fa-question-circle"></i> {{ exam_type }} Quiz: {{ topic }}</h2>
+                <div class="quiz-timer">
+                    <i class="fas fa-clock"></i> <span id="timer">15:00</span>
+                </div>
+            </div>
+            
+            <form action="/result" method="post" id="quizForm">
+                {% for q in quiz %}
+                <div class="question-card animate__animated animate__fadeIn" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+                    <div class="question-text">
+                        <span class="question-number">Q{{ loop.index }}.</span>
+                        {{ q.question }}
+                    </div>
+                    
+                    <div class="options-grid">
+                        {% for opt in q.options %}
+                        <label class="option">
+                            <input type="radio" name="q{{ q.id }}" value="{{ 'ABCD'[loop.index0] }}" required>
+                            <span class="option-letter">{{ 'ABCD'[loop.index0] }}.</span>
+                            <span class="option-text">{{ opt }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Hidden fields -->
+                    <input type="hidden" name="correct{{ q.id }}" value="{{ q.correct }}">
+                    <input type="hidden" name="expl{{ q.id }}" value="{{ q.explanation }}">
+                    <input type="hidden" name="qtext{{ q.id }}" value="{{ q.question }}">
+                    {% for i in range(4) %}
+                        <input type="hidden" name="opt{{ q.id }}_{{ i }}" value="{{ q.options[i] }}">
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                
+                <input type="hidden" name="total" value="{{ quiz|length }}">
+                
+                <div class="quiz-actions">
+                    <button type="submit" class="btn-submit animate__animated animate__pulse">
+                        <i class="fas fa-paper-plane"></i> Submit Quiz
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer class="animate__animated animate__fadeInUp">
+        <div class="container">
+            <p>© 2023 StudyGenius | AI-Powered Education</p>
+        </div>
+    </footer>
+
+    <script src="static/script.js"></script>
+    <script>
+        // Timer countdown
+        let timeLeft = 15 * 60; // 15 minutes
+        const timer = document.getElementById('timer');
+        
+        const countdown = setInterval(() => {
+            const minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            
+            timer.textContent = `${minutes}:${seconds}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                document.getElementById('quizForm').submit();
+            } else {
+                timeLeft--;
+            }
+            
+            if (timeLeft <= 60) {
+                timer.style.color = '#e74c3c';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
